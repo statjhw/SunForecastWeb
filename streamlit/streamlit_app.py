@@ -12,6 +12,8 @@ st.set_page_config(
 # -----------------------------------------------------------------------------
 # Declare some useful functions.
 
+st.run(port=8501, server_address="0.0.0.0")
+
 @st.cache_data
 def get_gdp_data():
     """Grab GDP data from a CSV file.

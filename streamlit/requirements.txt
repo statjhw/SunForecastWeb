@@ -1,2 +1,4 @@
 streamlit
 pandas
+altair==4.0.0
+datetime
