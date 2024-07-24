@@ -48,13 +48,34 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import altair as alt
+from streamlit_option_menu import option_menu
 
 
 # 데이터 준비
-data = pd.read_csv("./data/합친거.csv")
+data = pd.read_csv("./data/합친거.csv") 
 
+st.set_page_config(page_title='중요하지 않아', page_icon='🌎')
+
+st.title('🌎태양광에너지 발전량 예측 플랫폼')
+with st.sidebar:
+    choice = option_menu("Menu", ["페이지1", "페이지2", "페이지3"],
+                         icons=['house', 'kanban', 'bi bi-robot'],
+                         menu_icon="app-indicator", default_index=0,
+                         styles={
+        "container": {"padding": "4!important", "background-color": "#fafafa"},
+        "icon": {"color": "black", "font-size": "25px"},
+        "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#fafafa"},
+        "nav-link-selected": {"background-color": "#08c7b4"},
+    }
+    )
+st.divider()
+
+st.header('현재 태양광 발전량 예측 그래프')
 st.line_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
 
+st.write('KSB: 경상북도')
+st.write('KSN: 경상남도')
+st.write('KWJ: 광주광역시')
 # chart = alt.Chart(data).mark_circle().encode(x='datetime',y='Solar_Power(MWh)',color='code')
 # st.altair_chart(chart)
 # # 'timestamp' 열을 datetime 객체로 변환
