@@ -1,61 +1,101 @@
 import streamlit as st
 import pandas as pd
+from streamlit_option_menu import option_menu
+from pathlib import Path
 
-# Set the title and favicon that appear in the Browser's tab bar.
-st.set_page_config(
-    page_title='지역별 발전량',
-    page_icon=':earth_americas:',  # This is an emoji shortcode. Could be a URL too.
-)
 
-# -----------------------------------------------------------------------------
-# Declare some useful functions.
+# 데이터 준비
+data = pd.read_csv("./data/합친거.csv")
 
-@st.cache_data
-def load_data():
-    """Read solar power generation data from a CSV file."""
-    data_df = pd.read_csv("./data/경상남도1.csv")
-      # Ensure the Date column is in datetime format
-    return data_df
+#지역별 코드보여주는 html
+local_codes_html = Path('./htmls/local_codes.html')
 
-data_df = load_data()
-data_df['datetime'] = pd.to_datetime(data_df['datetime'], format='%Y-%m-%d-%H')
-data_df['datetime'] = data_df['datetime'].apply(lambda x: x.to_pydatetime())
 
-# Display the first few rows of the dataframe
-st.write(data_df.head())
+#페이지 생성
+st.set_page_config(page_title='중요하지 않아', page_icon='🌎')
 
-# Set the title that appears at the top of the page.
-st.title(':earth_americas: 지역별 발전량')
-
-# Add some spacing
-st.write('')
-st.write('')
-
-# Filter the data based on the selected range
-min_date = data_df['datetime'].min()
-max_date = data_df['datetime'].max()
-
-print(min_date)
-
-from_date, to_date = st.slider(
-        '몇년도를 보고싶으세요?',
-        min_value=min_date,
-        max_value=max_date,
-        value=[min_date, max_date]
+#사이드 바
+with st.sidebar:
+    choice = option_menu("Menu", ["홈", "발전량 예측", "페이지3"],
+                         icons=['house', 'bar-chart-line', 'bi bi-robot'],
+                         menu_icon="app-indicator", default_index=0,
+                         styles={
+        "container": {"padding": "4!important", "background-color": "#fafafa"},
+        "icon": {"color": "black", "font-size": "25px"},
+        "nav-link": {"font-size": "16px", "text-align": "left", "margin":"0px", "--hover-color": "#fafafa"},
+        "nav-link-selected": {"background-color": "#08c7b4"},
+    }
     )
     
 
-# # Convert from_date and to_date back to datetime for filtering
-# filtered_data_df = data_df[
-#     (data_df['datetime'] >= from_date) & (data_df['datetime'] <= to_date)
-# ]
+#홈
+if choice=='홈':
+    st.header('"중요하지 않아"의 플랫폼에 오신걸 환영합니다!')
 
-# st.header('지역별 발전량', divider='gray')
+    st.divider()
 
-# filtered_data_df.set_index('datetime', inplace=True)
+    st.subheader('😎개요')
+    '''
+    본 플랫폼에서는 2013년01월01일 ~ 2017년02월28일에 측정된 태양광발전량데이터와
+    해당 지역별 기상데이터를 이용하여 AI모델에게 학습시킨 후, 이 후의 태양광발전량데이터를 
+    예측하였습니다.
+    '''
+    
+    ''
 
-# # Check if '시간' column exists before setting it as index
-# st.line_chart(filtered_data_df.set_index('datetime')['Solar_Power(MWh)'])
+    st.subheader('💸활용성')
+    '''
+    태양광으로 발전한 전기를 전력시장에 유통할 때 특정 기간동안의 예측된 발전량을 제출한 후
+    실제 발전량과 오차가 적은 만큼 가격이 올라간다고 합니다! 그럼 예측된 발전량이 정확할수록
+    더 큰 이윤을 남길 수 있겠죠! 
+    '''
 
-# st.write('')
-# st.write('')
+
+    
+    
+#발전량 예측
+elif choice=='발전량 예측':
+
+    
+    #지역코드보여주는 html파일 불러오기
+    if local_codes_html.exists():
+        st.html(local_codes_html)
+    else:
+        st.error('html 파일이 없음')
+    ''
+
+    #지역 코드들
+    locals = data['code'].unique()
+
+    #원하는 지역코드들 선택
+    selected_locals = st.multiselect(
+        '보고싶은 지역들을 선택하세요!',
+        locals,
+        ['KSN','KSB','KWJ'])
+    
+    filtered_data = data[data['code'].isin(selected_locals)]
+    
+    ''
+    st.header('태양광 발전량 예측 그래프')
+    st.line_chart(filtered_data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+    
+
+
+#페이지3
+elif choice=='페이지3':
+    st.header('여기다가 뭘할까')
+
+    tab1, tab2, tab3 = st.tabs(['탭1','탭2','탭3'])
+
+    with tab1:
+        st.header('막대그래프')
+        st.bar_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+    with tab2:
+        st.header('영역그래프')
+        st.area_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+    with tab3:
+        st.header('점그래프')
+        st.scatter_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
