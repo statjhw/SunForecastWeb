@@ -46,20 +46,22 @@
 # )
 import streamlit as st
 import pandas as pd
-from datetime import datetime
-import altair as alt
 from streamlit_option_menu import option_menu
+from pathlib import Path
 
 
 # 데이터 준비
-data = pd.read_csv("./data/합친거.csv") 
+data = pd.read_csv("./data/합친거.csv")
+local_codes_html = Path('./htmls/local_codes.html')
 
+
+#페이지 생성
 st.set_page_config(page_title='중요하지 않아', page_icon='🌎')
 
-st.title('🌎태양광에너지 발전량 예측 플랫폼')
+#사이드 바
 with st.sidebar:
-    choice = option_menu("Menu", ["페이지1", "페이지2", "페이지3"],
-                         icons=['house', 'kanban', 'bi bi-robot'],
+    choice = option_menu("Menu", ["홈", "발전량 예측", "페이지3"],
+                         icons=['house', 'bar-chart-line', 'bi bi-robot'],
                          menu_icon="app-indicator", default_index=0,
                          styles={
         "container": {"padding": "4!important", "background-color": "#fafafa"},
@@ -68,29 +70,57 @@ with st.sidebar:
         "nav-link-selected": {"background-color": "#08c7b4"},
     }
     )
-st.divider()
-
-st.header('현재 태양광 발전량 예측 그래프')
-st.line_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
-
-st.write('KSB: 경상북도')
-st.write('KSN: 경상남도')
-st.write('KWJ: 광주광역시')
-# chart = alt.Chart(data).mark_circle().encode(x='datetime',y='Solar_Power(MWh)',color='code')
-# st.altair_chart(chart)
-# # 'timestamp' 열을 datetime 객체로 변환
-# def convert_to_datetime(timestamp_str):
-#     # 시간 부분이 24인 경우 00으로 변경하여 처리
-#     if timestamp_str.endswith('-24'):
-#         timestamp_str = timestamp_str[:-3] + '-00'
-#         dt = datetime.strptime(timestamp_str, '%Y-%m-%d-%H') + pd.Timedelta(days=1)
-#     else:
-#         dt = datetime.strptime(timestamp_str, '%Y-%m-%d-%H')
-#     return dt
-
-# df['date'] = df['datetime'].apply(convert_to_datetime)
-
-# # 'datetime' 열을 인덱스로 설정
-# df.set_index('date', inplace=True)
+    
 
 
+if choice=='홈':
+    st.header('"중요하지 않아"의 플랫폼에 오신걸 환영합니다!')
+
+    st.divider()
+
+    st.subheader('😎개요')
+    '''
+    본 플랫폼에서는 2013년01월01일 ~ 2017년02월28일에 측정된 태양광발전량데이터와
+    해당 지역별 기상데이터를 이용하여 AI모델에게 학습시킨 후, 이 후의 태양광발전량데이터를 
+    예측하였습니다.
+    '''
+    
+    ''
+
+    st.subheader('💸활용성')
+    '''
+    태양광으로 발전한 전기를 전력시장에 유통할 때 특정 기간동안의 예측된 발전량을 제출한 후
+    실제 발전량과 오차가 적은 만큼 가격이 올라간다고 합니다! 그럼 예측된 발전량이 정확할수록
+    더 큰 이윤을 남길 수 있겠죠! 
+    '''
+
+
+    
+    
+
+elif choice=='발전량 예측':
+    st.header('태양광 발전량 예측 그래프')
+    st.line_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+    if local_codes_html.exists():
+        st.html(local_codes_html)
+    else:
+        st.error('html 파일이 없음')
+
+
+elif choice=='페이지3':
+    st.header('여기다가 뭘할까')
+
+    tab1, tab2, tab3 = st.tabs(['탭1','탭2','탭3'])
+
+    with tab1:
+        st.header('막대그래프')
+        st.bar_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+    with tab2:
+        st.header('영역그래프')
+        st.area_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+    with tab3:
+        st.header('점그래프')
+        st.scatter_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
