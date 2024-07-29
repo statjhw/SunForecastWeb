@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from streamlit_option_menu import option_menu
 from pathlib import Path
+import requests
 
 
 # 데이터 준비
@@ -50,6 +51,11 @@ if choice=='홈':
     더 큰 이윤을 남길 수 있겠죠! 
     '''
 
+    if st.button('누르면 서버와 통신'):
+        response = requests.get('http://127.0.0.1:8000/')
+
+        st.title('서버에서 보낸 것:')
+        st.subheader(response.content)
 
     
     
@@ -64,7 +70,7 @@ elif choice=='발전량 예측':
         st.error('html 파일이 없음')
     ''
 
-    #지역 코드들
+    #지역 code들
     locals = data['code'].unique()
 
     #원하는 지역코드들 선택
