@@ -29,8 +29,6 @@ korea_html = Path('./htmls/korea.html')
 #서버 주소
 my_url = 'http://127.0.0.1:8000/'
 
-#쿼리문 저장
-query_params = st.query_params
 
 
 
@@ -54,9 +52,9 @@ with st.sidebar:
     )
 
     #지역이 선택되면 지역별 예측으로 고정
-    if 'region' in query_params:
+    if 'region' in st.query_params:
         choice = '지역별 예측'
-        
+    
     
 
 #홈
@@ -189,13 +187,13 @@ elif choice=='지역별 예측':
 
     #지역별 그래프불러오기
      #처음에 region이 없으므로 예외처리
-    if 'region' not in query_params:
+    if 'region' not in st.query_params:
         st.warning("지역을 선택해주세요")
 
     
-    elif query_params['region'] == 'seoul':
+    elif st.query_params['region'] == 'seoul':
         response = requests.get(my_url + '/seoul')
         
         st.write(response.json())
         
-    
+        st.experimental_set_query_params(region=None)
