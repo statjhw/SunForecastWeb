@@ -1,4 +1,4 @@
 # 임시
-streamlit/.devcontainer/
-.github/
+streamlit/.devcontainer
+.github
 .idea/
