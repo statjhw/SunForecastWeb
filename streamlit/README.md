@@ -15,5 +15,5 @@ A simple Streamlit app showing the GDP of different countries in the world.
 2. Run the app
 
    ```
-   $ streamlit run streamlit_app.py
+   $ streamlit run Home.py --server.port 8501 --server.address 0.0.0.0 --server.enableCORS false --server.enableXsrfProtection false
    ```
