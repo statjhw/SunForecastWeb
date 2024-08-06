@@ -11,3 +11,4 @@ docker build -t {image_name} .
 ```
 docker run -d -p 8501:8501 {image_name}
 ```
+
