@@ -216,25 +216,25 @@ elif choice=='그래프들':
 
 elif choice=='지역별 예측':      
 
+    if 'region' not in st.query_params:
+        st.header('원하는 지역을 클릭하면 밑에 예측량이 보여집니다')
     
+    
+    
+        # 이미지태그가 안돼서 이미지를 base64로 인코딩
+        file_ = open("./img/korea_map.png", "rb")
+        contents = file_.read()
+        data_url = base64.b64encode(contents).decode("utf-8")
+        file_.close()
+    
+        # korea.html을 불러온 후 이미지를 base64로 인코딩한것을 입력
+        with open("./htmls/korea.html", 'r', encoding='utf-8') as file:
+                korea_html_content = file.read()
+                korea_html_content = korea_html_content.replace("data_url", data_url)
 
-    st.header('원하는 지역을 클릭하면 밑에 예측량이 보여집니다')
+        # 변경된 html실행       
+        st.html(korea_html_content)
     
-    
-    
-    # 이미지태그가 안돼서 이미지를 base64로 인코딩
-    file_ = open("./img/korea_map.png", "rb")
-    contents = file_.read()
-    data_url = base64.b64encode(contents).decode("utf-8")
-    file_.close()
-    
-    # korea.html을 불러온 후 이미지를 base64로 인코딩한것을 입력
-    with open("./htmls/korea.html", 'r', encoding='utf-8') as file:
-            korea_html_content = file.read()
-            korea_html_content = korea_html_content.replace("data_url", data_url)
-
-    # 변경된 html실행       
-    st.html(korea_html_content)
 
 
     #지역 리스트
