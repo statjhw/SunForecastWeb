@@ -2,3 +2,5 @@
 .devcontainer/
 .github/
 .idea/
+fastapi/config.ini
+fastapi/__pycache__/
