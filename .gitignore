@@ -1,6 +1,8 @@
 # 임시
-.devcontainer/
-.github/
+streamlit/.devcontainer/
+.github
 .idea/
+<<<<<<< HEAD
 fastapi/config.ini
 fastapi/__pycache__/
+
