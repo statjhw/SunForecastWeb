@@ -3,3 +3,4 @@ streamlit/.devcontainer/
 .github
 .idea/
 streamlit/.env
+myenv/
