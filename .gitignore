@@ -2,5 +2,11 @@
 streamlit/.devcontainer/
 .github
 .idea/
+<<<<<<< HEAD
 streamlit/.env
 myenv/
+=======
+fastapi/config.ini
+fastapi/__pycache__/
+
+>>>>>>> e5b061760fdac2e7ce53cf7a79c9a3442aed9564

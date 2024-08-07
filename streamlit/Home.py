@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 # 데이터 준비
-data = pd.read_csv("./data/합친거.csv")
+data = pd.read_csv("./data/합친거한글.csv")
 
 
 
@@ -96,26 +96,101 @@ elif choice=='기존 발전량':
 
     
     #지역코드보여주는 html파일 불러오기
-    if local_codes_html.exists():
-        st.html(local_codes_html)
-    else:
-        st.error('html 파일이 없음')
-    ''
+    # if local_codes_html.exists():
+    #     st.html(local_codes_html)
+    # else:
+    #     st.error('html 파일이 없음')
+    # ''
 
     #지역 code들
     locals = data['code'].unique()
+    
+    regions_codes = {
+    "강원도": 1,
+    "경기도": 2,
+    "경상남도": 3,
+    "경상북도": 4,
+    "광주시": 5,
+    "대구시": 6,
+    "대전시": 7,
+    "부산시": 8,
+    "서울시": 9,
+    "세종시": 10,
+    "울산시": 11,
+    "인천시": 12,
+    "전라남도": 13,
+    "전라북도": 14,
+    "제주도": 15,
+    "충청남도": 16,
+    "충청북도": 17
+    }
+
+    # #통신해서 데이터 가져오는 코드
+    # selected_locals = st.multiselect(
+    #     '보고싶은 지역들을 선택하세요!',
+    #     regions_codes.keys)
+
+    # if st.button('요청'):
+    #     try:
+    #         response = requests.get(my_url + '/regions', selected_locals)
+    #         #이제 여기서 .json()을 써서 데이터 형식 맞춰주기
+    #         filtered_data1 = pd.DataFrame(response.json())
+    #         st.header('기존 태양광 발전량 그래프')
+    #         st.line_chart(filtered_data1,x='datetime',y='Solar_Power(MWh)', color = 'code')
+    #     except requests.exceptions.RequestException as req_err:
+    #         print(f"요청 중 에러가 발생했습니다: {req_err}")
+    #     except Exception as err:
+    #         print(f"알 수 없는 에러가 발생했습니다: {err}")
+    
+
 
     #원하는 지역코드들 선택
     selected_locals = st.multiselect(
         '보고싶은 지역들을 선택하세요!',
         locals,
-        ['KSN','KSB','KWJ'])
+        ['광주','경남','경북'])
     
-    filtered_data = data[data['code'].isin(selected_locals)]
+    filtered_data1 = data[data['code'].isin(selected_locals)]
+    
     
     ''
     st.header('기존 태양광 발전량 그래프')
-    st.line_chart(filtered_data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+    st.line_chart(filtered_data1,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+    ''
+    ''
+    st.divider()
+    #----------------------------------------------------------------------------한 지역 비교
+    st.header('한 지역의 발전량과 예측 비교')
+
+
+    #원하는 지역코드를 선택(예측 데이터가 없음)
+    selected_local = st.selectbox(
+        '보고싶은 지역을 선택하세요!',
+        locals)
+    
+    filtered_data2 = data.loc[data['code']==selected_local]
+    st.line_chart(filtered_data2,x='datetime',y='Solar_Power(MWh)', color = 'code')
+
+
+    # #통신해서 데이터 가져오는 코드
+    # selected_local = st.selectbox(
+    #     '보고싶은 지역을 선택하세요!',
+    #     regions_codes.keys)
+    
+    # if st.button('요청'):
+    #     #데이터 가져올 때 기존 + 예측 합치는데 code를 구별
+    #     try:
+    #         response = requests.get(my_url + '/region', regions_codes[selected_local])
+    #         filtered_data2 = pd.DataFrame(response.json())
+    #         st.line_chart(filtered_data2,x='datetime',y='Solar_Power(MWh)', color = 'code')
+    #     except requests.exceptions.RequestException as req_err:
+    #         print(f"요청 중 에러가 발생했습니다: {req_err}")
+    #     except Exception as err:
+    #         print(f"알 수 없는 에러가 발생했습니다: {err}")
+
+
+    
 
     
 
@@ -141,25 +216,25 @@ elif choice=='그래프들':
 
 elif choice=='지역별 예측':      
 
+    if 'region' not in st.query_params:
+        st.header('원하는 지역을 클릭하면 밑에 예측량이 보여집니다')
     
+    
+    
+        # 이미지태그가 안돼서 이미지를 base64로 인코딩
+        file_ = open("./img/korea_map.png", "rb")
+        contents = file_.read()
+        data_url = base64.b64encode(contents).decode("utf-8")
+        file_.close()
+    
+        # korea.html을 불러온 후 이미지를 base64로 인코딩한것을 입력
+        with open("./htmls/korea.html", 'r', encoding='utf-8') as file:
+                korea_html_content = file.read()
+                korea_html_content = korea_html_content.replace("data_url", data_url)
 
-    st.header('원하는 지역을 클릭하면 밑에 예측량이 보여집니다')
+        # 변경된 html실행       
+        st.html(korea_html_content)
     
-    
-    
-    # 이미지태그가 안돼서 이미지를 base64로 인코딩
-    file_ = open("./img/korea_map.png", "rb")
-    contents = file_.read()
-    data_url = base64.b64encode(contents).decode("utf-8")
-    file_.close()
-    
-    # korea.html을 불러온 후 이미지를 base64로 인코딩한것을 입력
-    with open("./htmls/korea.html", 'r', encoding='utf-8') as file:
-            korea_html_content = file.read()
-            korea_html_content = korea_html_content.replace("data_url", data_url)
-
-    # 변경된 html실행       
-    st.html(korea_html_content)
 
 
     #지역 리스트
