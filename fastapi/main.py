@@ -63,44 +63,6 @@ def get_db() :
     finally :
         db.close()
 
-
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-#기존발전량 불러오기
-@app.get("/regions")
-def read_regions_old(selected_locals: list):
-
-    return {}#selected_locals에 해당하는 데이터
-
-#한 지역의 기존발전량 + 예측발전량
-@app.get("/region")
-def read_regions_predict(regions_code : int):
-
-    return {}#region_code에 해당하는 지역의 기존+예측
-
-
-@app.get("/seoul")
-def read_seoul(unit: str, start: datetime, end: datetime):
-
-    if(unit == '년'):
-        return f'서버에서 온 {start.year}~{end.year}의 년으로 된 서울데이터'
-    elif (unit == '월'):
-        return f'서버에서 온 {start:%Y-%m}~{end:%Y-%m}의 월으로 된 서울데이터'
-    else:
-        return f'서버에서 온 {start:%Y-%m-%d}~{end:%Y-%m-%d}의 일로 된 서울데이터'
-
-
-
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int):
-    return {"item_id": item_id}
-
 # 페이지1 : 지역의 발전량 record를 요청하면 보내주는 코드
 from sqlalchemy import select 
 
@@ -116,5 +78,31 @@ def read_item(region_number : int) :
     
 
 
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+
+
+@app.get("/seoul")
+def read_seoul(unit: str, start: datetime, end: datetime):
+
+    if(unit == '년'):
+        return f'서버에서 온 {start.year}~{end.year}의 년으로 된 서울데이터'
+    elif (unit == '월'):
+        return f'서버에서 온 {start:%Y-%m}~{end:%Y-%m}의 월으로 된 서울데이터'
+    else:
+        return f'서버에서 온 {start:%Y-%m-%d}~{end:%Y-%m-%d}의 일로 된 서울데이터'
+
+
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int):
+    return {"item_id": item_id}
+
+
+
 if __name__ == "__main__":
     uvicorn.run(app,host=my_host,port=my_port)
+    
