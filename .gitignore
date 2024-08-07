@@ -2,7 +2,6 @@
 streamlit/.devcontainer/
 .github
 .idea/
-<<<<<<< HEAD
 fastapi/config.ini
 fastapi/__pycache__/
 
