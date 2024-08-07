@@ -1,14 +1,14 @@
 import uvicorn
-<<<<<<< HEAD
+
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import create_engine, Column, Float, DateTime, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 import configparser
-=======
+
 from fastapi import FastAPI
 from datetime import datetime
->>>>>>> 1905a1f69d3e1d5442ae80a0e33451c2a9730ac9
+
 
 app = FastAPI()
 my_host = "127.0.0.1"
@@ -46,7 +46,6 @@ def create_table(region_number : int) :
         Column('timestamp', DateTime, primary_key=True),
         Column("production", Float),
         Column("predicted_production", Float),
-        
     )
     try : 
         if not engine.dialect.has_table(engine, table_name) :
@@ -65,31 +64,7 @@ def get_db() :
         db.close()
 
 
-#지역 리스트
-regions = ['seoul', 'incheon', 'kyunggi', 'gangwon', 'chungnam',
-            'chungbuk', 'daejeon', 'sejong', 'gyeongbuk', 'gyeongnam',
-            'ulsan', 'daegu', 'jeonbuk', 'jeonnam', 'kwangju', 'busan',
-            'jeju', 'ulleungdo_dokdo' ]
 
-regions_codes = {
-    "강원도": 1,
-    "경기도": 2,
-    "경상남도": 3,
-    "경상북도": 4,
-    "광주시": 5,
-    "대구시": 6,
-    "대전시": 7,
-    "부산시": 8,
-    "서울시": 9,
-    "세종시": 10,
-    "울산시": 11,
-    "인천시": 12,
-    "전라남도": 13,
-    "전라북도": 14,
-    "제주도": 15,
-    "충청남도": 16,
-    "충청북도": 17
-    }
 
 @app.get("/")
 def read_root():
