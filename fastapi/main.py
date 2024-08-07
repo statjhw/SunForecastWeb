@@ -15,7 +15,7 @@ my_host = "127.0.0.1"
 my_port = 8001
 
 config = configparser.ConfigParser()
-config.read('/home/ubuntu/SunForecastWeb/fastapi/config.ini')
+config.read('config.ini')
 
 
 database = config['database']['database']
@@ -66,8 +66,29 @@ def get_db() :
 # 페이지1 : 지역의 발전량 record를 요청하면 보내주는 코드
 from sqlalchemy import select 
 
+
+# @app.get("/record", response_model=list[dict])
+# def read_item1(region_numbers : list[int]) :
+#     with SessionLocal() as session :
+
+#         regions_data = []
+#         return_datas = []
+
+#         for i in len(region_numbers):
+#             table = create_table(region_numbers[i])
+
+#             query = select(table)
+#             results = session.execute(query).fetchall()
+#             regions_data.append(results)
+
+
+#         return [{"timestamp": row.timestamp, "production": row.production, "predicted_production": row.predicted_production} for results in regions_data for row in results]
+
+
+
+
 @app.get("/record/{region_number}", response_model=list[dict])
-def read_item(region_number : int) :
+def read_item2(region_number : int) :
     with SessionLocal() as session :
         table = create_table(region_number)
 
