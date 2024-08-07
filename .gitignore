@@ -6,3 +6,7 @@ streamlit/.env
 myenv/
 fastapi/config.ini
 fastapi/__pycache__/
+
+
+
+
