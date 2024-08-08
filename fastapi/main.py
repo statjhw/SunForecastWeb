@@ -4,10 +4,13 @@ from fastapi import FastAPI, HTTPException
 from sqlalchemy import create_engine, Column, Float, DateTime, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
-import configparser
-
-from fastapi import FastAPI
 from datetime import datetime
+import configparser
+import logging
+
+#로깅 설정
+logging.basicConfig(level=logging.INFO)
+logging = logging.getLogger(__name__)
 
 
 app = FastAPI()
@@ -29,9 +32,11 @@ try :
     engine = create_engine(DATABASE_URL)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     metadata = MetaData()
-    print("db connection")
+    logging.info("Database connection successful")
 except Exception as e :
-    print(e)
+    logging.error(f"Database connection failed: {e}")
+    raise RuntimeError("Failed to connect to the database")
+
 
 tables_cache = {}
 
@@ -51,7 +56,7 @@ def create_table(region_number : int) :
         if not engine.dialect.has_table(engine, table_name) :
             metadata.create_all(engine, tables=[table])
     except SQLAlchemyError as e :
-        print(f"Error creating table {table_name} : {e}")
+        logging.error(f"Error creating table {table_name} : {e}")
     tables_cache[region_number] = table
     return table
 
@@ -88,14 +93,18 @@ from sqlalchemy import select
 
 
 @app.get("/record/{region_number}", response_model=list[dict])
-def read_item2(region_number : int) :
-    with SessionLocal() as session :
-        table = create_table(region_number)
-
-        query = select(table)
-        results = session.execute(query).fetchall()
-
+def read_item2(region_number : int, db : session = Depends(get_db)) :
+    table = create_table(region_number)
+    query = select(table)
+    try :
+        result = db.execute(query).fetchall()
+        if not results :
+            raise HTTPException(status_code=404, detail="No records found")
         return [{"timestamp": row.timestamp, "production": row.production, "predicted_production": row.predicted_production} for row in results]
+    except SQLAlchemyError as e :
+        logging.error(f"Error fectching data for region {region_number} : {}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
     
 
 
