@@ -97,7 +97,7 @@ def read_item2(region_number : int, db : session = Depends(get_db)) :
     table = create_table(region_number)
     query = select(table)
     try :
-        result = db.execute(query).fetchall()
+        results = db.execute(query).fetchall()
         if not results :
             raise HTTPException(status_code=404, detail="No records found")
         return [{"timestamp": row.timestamp, "production": row.production, "predicted_production": row.predicted_production} for row in results]

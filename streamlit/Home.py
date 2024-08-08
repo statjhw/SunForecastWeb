@@ -167,7 +167,6 @@ elif choice=='기존 발전량':
             
             
             regions_graph_data = regions_graph_data.reset_index()
-            regions_graph_data.to_csv('/Users/admin/OneDrive/Desktop/asd/streamlit/data/서버강원도.csv',index=False)
             print(regions_graph_data.head())
             st.header('기존 태양광 발전량 그래프')
             st.line_chart(regions_graph_data, x='timestamp',y='production', color = 'code')
