@@ -1,8 +1,8 @@
 import uvicorn
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy import create_engine, Column, Float, DateTime, MetaData, Table
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, session
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 import configparser
@@ -102,7 +102,7 @@ def read_item2(region_number : int, db : session = Depends(get_db)) :
             raise HTTPException(status_code=404, detail="No records found")
         return [{"timestamp": row.timestamp, "production": row.production, "predicted_production": row.predicted_production} for row in results]
     except SQLAlchemyError as e :
-        logging.error(f"Error fectching data for region {region_number} : {}")
+        logging.error(f"Error fectching data for region {region_number} : {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
     
@@ -135,4 +135,3 @@ def read_item(item_id: int):
 
 if __name__ == "__main__":
     uvicorn.run(app,host=my_host,port=my_port)
-    
