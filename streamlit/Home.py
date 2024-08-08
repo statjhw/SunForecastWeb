@@ -170,6 +170,9 @@ elif choice=='기존 발전량':
 
                 #datetime YYYY-MM으로 변경
                 monthly_data1.index = pd.to_datetime(monthly_data1.index).to_period('M')
+
+                #문자열로 변경
+                monthly_data1.index = monthly_data1.index.strftime('%Y-%m')
                 
                 regions_graph_data = pd.concat([regions_graph_data, monthly_data1])
 
@@ -178,7 +181,7 @@ elif choice=='기존 발전량':
             regions_graph_data = regions_graph_data.reset_index()
             print(regions_graph_data.head())
             st.header('기존 태양광 발전량 그래프')
-            st.line_chart(regions_graph_data, x='timestamp',y='production', color = 'code')
+            st.line_chart(regions_graph_data,x='timestamp',y='production', color = 'code')
 
         except requests.exceptions.RequestException as req_err:
             print(f"요청 중 에러가 발생했습니다: {req_err}")
@@ -241,9 +244,10 @@ elif choice=='기존 발전량':
             #datetime YYYY-MM으로 변경
             monthly_data2.index = pd.to_datetime(monthly_data2.index).to_period('M')
 
-            #인덱스를 timestamp열로 만듬
-            monthly_data2 = monthly_data2.reset_index().rename(columns={'index': 'timestamp'})
-            print(monthly_data2.head())
+            
+            monthly_data2 = monthly_data2.reset_index().rename(columns={'index':'timestamp'})
+            
+            
             df1 = pd.DataFrame(monthly_data2.loc[:,monthly_data2.columns != 'predicted_production'])
             df2 = pd.DataFrame(monthly_data2.loc[:,monthly_data2.columns != 'production'])
             
@@ -252,19 +256,22 @@ elif choice=='기존 발전량':
             
             #예측량데이터 열 이름 바꾸기
             df2.rename(columns={'predicted_production' :'production' }, inplace=True)
-            print(df1.head())
+            
             graph_data = pd.concat([df1,df2])
 
 
-            # graph_data['timestamp'] = graph_data['timestamp'].to_timestamp()
-
-            #인덱스를 timestamp로 변경
-            graph_data.set_index('timestamp', inplace=True)
-
             
 
+            
+            #인덱스를 timestamp로 변경
+            graph_data.set_index('timestamp', inplace=True)
+            
+            graph_data = graph_data.reset_index()
+            
+            #graph_data.to_csv('C:\\Users\\admin\\OneDrive\\Desktop\\asd\streamlit\\data\\b.csv')
             print(graph_data.head())
-            st.line_chart(graph_data, y='production', color = 'code')
+            print(graph_data.tail())
+            st.line_chart(graph_data,x='timestamp', y='production', color = 'code')
         except requests.exceptions.RequestException as req_err:
             print(f"요청 중 에러가 발생했습니다: {req_err}")
         except Exception as err:
@@ -279,25 +286,34 @@ elif choice=='기존 발전량':
 #페이지3
 elif choice=='그래프들':
     st.header('여러가지 그래프')
-
+    a = pd.read_csv("./data/a.csv")
+    b = pd.read_csv("./data/b.csv")
     tab1, tab2, tab3, tab4 = st.tabs(['막대','영역','점','테스트'])
 
     with tab1:
         st.header('막대그래프')
         st.bar_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+        st.bar_chart(a,x='timestamp', y='production',color='code')
+        st.bar_chart(b,x='timestamp', y='production',color='code')
 
     with tab2:
         st.header('영역그래프')
         st.area_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+        st.area_chart(a,x='timestamp', y='production',color='code')
+        st.area_chart(b,x='timestamp', y='production',color='code')
 
     with tab3:
         st.header('점그래프')
         st.scatter_chart(data,x='datetime',y='Solar_Power(MWh)', color = 'code')
+        st.scatter_chart(a,x='timestamp', y='production',color='code')
+        st.scatter_chart(b,x='timestamp', y='production',color='code')
     
     with tab4:
         st.header('테스트')
-        a = pd.read_csv("./data/서버강원도.csv")
-        st.line_chart(a,x='timestamp', y='production')
+        
+        st.line_chart(a,x='timestamp', y='production',color='code')
+        st.line_chart(b,x='timestamp', y='production',color='code')
+        # st.line_chart(data,x='datetime',y='Solar_Power(MWh)',color = 'code')
 
 elif choice=='지역별 예측':      
 
@@ -328,6 +344,27 @@ elif choice=='지역별 예측':
                 'ulsan', 'daegu', 'jeonbuk', 'jeonnam', 'kwangju', 'busan',
                 'jeju', 'ulleungdo_dokdo' ]
     
+    regions_dict = {
+    'seoul': '서울시',
+    'incheon': '인천시',
+    'kyunggi': '경기도',
+    'gangwon': '강원도',
+    'chungnam': '충청남도',
+    'chungbuk': '충청북도',
+    'daejeon': '대전시',
+    'sejong': '세종시',
+    'gyeongbuk': '경상북도',
+    'gyeongnam': '경상남도',
+    'ulsan': '울산시',
+    'daegu': '대구시',
+    'jeonbuk': '전라북도',
+    'jeonnam': '전라남도',
+    'kwangju': '광주시',
+    'busan': '부산시',
+    'jeju': '제주도',
+    'ulleungdo_dokdo': '울릉도/독도'
+}
+
     #홈 이동버튼 만드는 함수
     def go_home():
         if st.button('홈으로 이동'):
@@ -337,6 +374,7 @@ elif choice=='지역별 예측':
     #슬라이더를 만들어 불러올 데이터의 단위, 기간을 param로 반환해주는 함수
     def make_slider_and_params():
         #단위 정하기
+        st.subheader("원하는 정보의 형식을 입력해주세요!")
         unit = st.selectbox(label='단위',options=['년','월','일'])
         
         if(unit == '년'):
@@ -365,6 +403,10 @@ elif choice=='지역별 예측':
         
         return {'unit': unit, 'start': start, 'end': end}
 
+    def submit(region : str):
+        if st.button('요청'):
+            response = requests.get(my_url + '/' + region,params=param)
+            st.write(response.json())
 
     #지역별 그래프불러오기
     #처음에 쿼리문에 region이 없으므로 예외처리
@@ -372,82 +414,10 @@ elif choice=='지역별 예측':
         st.warning("지역을 선택해주세요")
 
     
-    elif st.query_params['region'] == 'seoul':
-        param = make_slider_and_params()
-
-        if st.button('요청'):
-            response = requests.get(my_url + '/seoul',params=param)
-            st.write(response.json())
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'incheon':
-        st.warning(st.query_params['region'])
-        go_home()
-    
-    elif st.query_params['region'] == 'kyunggi':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'gangwon':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'chungnam':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'chungbuk':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'daejeon':
-        st.warning(st.query_params['region'])
-        go_home()
-    
-    elif st.query_params['region'] == 'sejong':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'gyeongbuk':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'gyeongnam':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'ulsan':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'daegu':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'jeonbuk':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'jeonnam':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'kwangju':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'busan':
-        st.warning(st.query_params['region'])
-        go_home()
-
-    elif st.query_params['region'] == 'jeju':
-        st.warning(st.query_params['region'])
-        go_home()
-    
-    elif st.query_params['region'] == 'ulleungdo_dokdo':
-        st.warning(st.query_params['region'])
-        go_home()
-
     else:
-        st.warning('예상치못한 오류가 발생하였습니다.')
+        st.header(f"{regions_dict[st.query_params['region']]}")
+        param = make_slider_and_params()
+        submit(st.query_params['region'])
+        go_home()
+
+    
