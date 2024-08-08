@@ -142,10 +142,18 @@ elif choice=='기존 발전량':
         regions_codes.keys())
 
     regions_graph_data = pd.DataFrame()
+    region_cnt = 0
+
+    loading = st.empty()
 
     if st.button('기존발전량 그래프 보기', key = 'button1'):
         try:
             for region in selected_locals:
+
+                if region:
+                    loading.write(f"{region} 데이터를 받아오는 중... {region_cnt} / {len(selected_locals)}")
+                    region_cnt += 1
+
                 response = requests.get(my_url + 'record/' + str(regions_codes[region]))
     
                 data1 = pd.DataFrame(response.json())
@@ -164,8 +172,9 @@ elif choice=='기존 발전량':
                 monthly_data1.index = pd.to_datetime(monthly_data1.index).to_period('M')
                 
                 regions_graph_data = pd.concat([regions_graph_data, monthly_data1])
+
             
-            
+            loading.write("")
             regions_graph_data = regions_graph_data.reset_index()
             print(regions_graph_data.head())
             st.header('기존 태양광 발전량 그래프')
