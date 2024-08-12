@@ -7,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 import configparser
 import logging
+import pandas as pd
 
 #로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +19,7 @@ my_host = "127.0.0.1"
 my_port = 8001
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('/fastapi/config.ini')
 
 
 database = config['database']['database']
@@ -71,27 +72,6 @@ def get_db() :
 # 페이지1 : 지역의 발전량 record를 요청하면 보내주는 코드
 from sqlalchemy import select 
 
-
-# @app.get("/record", response_model=list[dict])
-# def read_item1(region_numbers : list[int]) :
-#     with SessionLocal() as session :
-
-#         regions_data = []
-#         return_datas = []
-
-#         for i in len(region_numbers):
-#             table = create_table(region_numbers[i])
-
-#             query = select(table)
-#             results = session.execute(query).fetchall()
-#             regions_data.append(results)
-
-
-#         return [{"timestamp": row.timestamp, "production": row.production, "predicted_production": row.predicted_production} for results in regions_data for row in results]
-
-
-
-
 @app.get("/record/{region_number}", response_model=list[dict])
 def read_item2(region_number : int, db : session = Depends(get_db)) :
     table = create_table(region_number)
@@ -105,7 +85,6 @@ def read_item2(region_number : int, db : session = Depends(get_db)) :
         logging.error(f"Error fectching data for region {region_number} : {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    
 
 
 
@@ -114,23 +93,20 @@ def read_root():
     return {"Hello": "World"}
 
 
+#페이지 2 : 예측 발전량과 가격을 제공하는 코드
+@app.get("/predict_price/{region_number}/{date}")
+def read_value(region_number : int, date):
+    #데이터베이스에서 불러오기 -> 예측 발전량과 가격을 쌓아둔 데이터 -> 지역 별로 존재해야 함
+    data = pd.DataFrame() #데이터라고 생각
 
-@app.get("/seoul")
-def read_seoul(unit: str, start: datetime, end: datetime):
-
-    if(unit == '년'):
-        return f'서버에서 온 {start.year}~{end.year}의 년으로 된 서울데이터'
-    elif (unit == '월'):
-        return f'서버에서 온 {start:%Y-%m}~{end:%Y-%m}의 월으로 된 서울데이터'
-    else:
-        return f'서버에서 온 {start:%Y-%m-%d}~{end:%Y-%m-%d}의 일로 된 서울데이터'
+    row_data = data.loc[data['date'] == date]
+    return row_data['predict'], row_data['price']
 
 
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int):
     return {"item_id": item_id}
-
 
 
 if __name__ == "__main__":

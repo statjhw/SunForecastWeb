@@ -49,7 +49,7 @@ def kmeans_process(region_number, data) :
     return label, region_number
 
 
-#날씨 데이터의 cluster, year, month, day, dayofweek, 
+# 날씨 데이터의 cluster, year, month, day, dayofweek,
 # lag_1, lag_2, rolling_mean 부착 필요
 
 
@@ -85,7 +85,7 @@ def lightgbm_process(df, region_number) :
     16:"충청남도", 
     17:"충청북도" 
     }
-    
+
     region_name = regions_codes[region_number]
 
     #cluster 0,1,2 model return
@@ -144,3 +144,5 @@ def price_predict_region(predict, region_number) :
     predict *= 1000
 
     return (smp + rec) * predict
+
+
