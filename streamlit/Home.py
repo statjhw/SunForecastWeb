@@ -425,10 +425,17 @@ elif choice=='지역별 예측':
         
         return {'start': start, 'end': end}
 
-    def submit(local : str):
+    def submit(local : str, param: dict[str : datetime]):
         if st.button('요청'):
-            response = requests.get(my_url + '/predict_region/' + regions_codes[local], params=param)
-            st.write(response.json())
+            start = param['start']
+            end = param['end']
+
+            present = start
+            while present != end + pd.Timedelta(days=1):
+                response = requests.get(my_url + '/predict_price/' + str(regions_codes[local]) + '/' + str(present))
+                
+                st.write(response.json())
+                present += pd.Timedelta(days=1)
 
     #지역별 그래프불러오기
     #처음에 쿼리문에 region이 없으므로 예외처리
@@ -445,7 +452,7 @@ elif choice=='지역별 예측':
 
         st.header(f"{local}")
         param = make_slider_and_params()
-        submit(local)
+        submit(local,param)
         home_button()
 
     
