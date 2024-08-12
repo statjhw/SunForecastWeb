@@ -3,6 +3,8 @@ import numpy as np
 from sklearn.preprocessing import RobustScaler
 from sklearn.cluster import KMeans
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+from api import smp_price, rec_price
+
 
 def kmeans_process(region_number, data) :
     """
@@ -128,9 +130,17 @@ def lightgbm_process(df, region_number) :
     return predict_array 
 
 
-def price_predict() :
+def price_predict_region(predict, region_number) :
     """
         태양광 예측량을 토대로 가격을 예측하는 함수
-
-        
+        가격 = (SMP + REC) * 발전량
+        REC는 발전용량에 따라서 가중치가 다르게 적용된다. 
+        -> 각 지역의 발전용량을 합하기 때문에 임야 선택지로 고려
+        발전량의 단위를 변경해야 함 -> 1000곱하면 된다.
+        smp 단위 : 원/kWh
     """
+    smp = smp_price()
+    rec = rec_price() * 0.7
+    predict *= 1000
+
+    return (smp + rec) * predict
