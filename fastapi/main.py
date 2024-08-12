@@ -19,7 +19,7 @@ my_host = "127.0.0.1"
 my_port = 8001
 
 config = configparser.ConfigParser()
-config.read('/fastapi/config.ini')
+config.read('config.ini')
 
 
 database = config['database']['database']
