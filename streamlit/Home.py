@@ -5,13 +5,60 @@ from pathlib import Path
 import requests
 import base64
 from datetime import datetime
+# from PIL import Image
+# # 이미지연결
+# img = Image.open('imgs/image.jpg')
+# st.image(img)
 
 
+regions_codes = {
+    "강원도": 1,
+    "경기도": 2,
+    "경상남도": 3,
+    "경상북도": 4,
+    "광주시": 5,
+    "대구시": 6,
+    "대전시": 7,
+    "부산시": 8,
+    "서울시": 9,
+    "세종시": 10,
+    "울산시": 11,
+    "인천시": 12,
+    "전라남도": 13,
+    "전라북도": 14,
+    "제주도": 15,
+    "충청남도": 16,
+    "충청북도": 17
+    }
+
+regions = ['seoul', 'incheon', 'kyunggi', 'gangwon', 'chungnam',
+            'chungbuk', 'daejeon', 'sejong', 'gyeongbuk', 'gyeongnam',
+            'ulsan', 'daegu', 'jeonbuk', 'jeonnam', 'kwangju', 'busan',
+            'jeju', 'ulleungdo_dokdo' ]
+    
+regions_dict = {
+    'seoul': '서울시',
+    'incheon': '인천시',
+    'kyunggi': '경기도',
+    'gangwon': '강원도',
+    'chungnam': '충청남도',
+    'chungbuk': '충청북도',
+    'daejeon': '대전시',
+    'sejong': '세종시',
+    'gyeongbuk': '경상북도',
+    'gyeongnam': '경상남도',
+    'ulsan': '울산시',
+    'daegu': '대구시',
+    'jeonbuk': '전라북도',
+    'jeonnam': '전라남도',
+    'kwangju': '광주시',
+    'busan': '부산시',
+    'jeju': '제주도',
+    'ulleungdo_dokdo': '울릉도/독도'
+}
 
 
-
-
-# 데이터 준비
+# 데이터 준비(로컬)
 data = pd.read_csv("./data/합친거한글.csv")
 
 
@@ -20,6 +67,10 @@ data = pd.read_csv("./data/합친거한글.csv")
 # html들 연결
 local_codes_html = Path('./htmls/local_codes.html')
 korea_html = Path('./htmls/korea.html')
+
+
+
+
 
 
 
@@ -33,6 +84,34 @@ my_url = 'http://127.0.0.1:8001/'
 #페이지 생성
 st.set_page_config(page_title='중요하지 않아', page_icon='🌎')
 
+
+#배경화면 설정
+st.markdown(
+         f"""
+         <style>
+         .stApp {{
+             background-image: url("https://i.imgur.com/Zfb75jb.jpg");
+             background-attachment: fixed;
+             background-size: cover
+    
+         }}
+
+        
+        h1, h2, h3, p {{color: white;}}
+        
+        
+        button p {{color: black;}}
+    
+        
+        #tabs-bui3-tab-0 p,
+        #tabs-bui3-tab-1 p,
+        #tabs-bui3-tab-2 p,
+        #tabs-bui3-tab-3 p {{color: white;}}
+
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
 
 
 #사이드 바
@@ -105,25 +184,7 @@ elif choice=='기존 발전량':
     #지역 code들
     locals = data['code'].unique()
     
-    regions_codes = {
-    "강원도": 1,
-    "경기도": 2,
-    "경상남도": 3,
-    "경상북도": 4,
-    "광주시": 5,
-    "대구시": 6,
-    "대전시": 7,
-    "부산시": 8,
-    "서울시": 9,
-    "세종시": 10,
-    "울산시": 11,
-    "인천시": 12,
-    "전라남도": 13,
-    "전라북도": 14,
-    "제주도": 15,
-    "충청남도": 16,
-    "충청북도": 17
-    }
+    
     #datetime형식으로 바꿔주는 함수
     def convert_to_datetime(timestamp_str):
                     timestamp_str1 = timestamp_str[:10]
@@ -321,7 +382,6 @@ elif choice=='지역별 예측':
         st.header('원하는 지역을 클릭하면 밑에 예측량이 보여집니다')
     
     
-    
         # 이미지태그가 안돼서 이미지를 base64로 인코딩
         file_ = open("./img/korea_map.png", "rb")
         contents = file_.read()
@@ -338,86 +398,54 @@ elif choice=='지역별 예측':
     
 
 
-    #지역 리스트
-    regions = ['seoul', 'incheon', 'kyunggi', 'gangwon', 'chungnam',
-               'chungbuk', 'daejeon', 'sejong', 'gyeongbuk', 'gyeongnam',
-                'ulsan', 'daegu', 'jeonbuk', 'jeonnam', 'kwangju', 'busan',
-                'jeju', 'ulleungdo_dokdo' ]
     
-    regions_dict = {
-    'seoul': '서울시',
-    'incheon': '인천시',
-    'kyunggi': '경기도',
-    'gangwon': '강원도',
-    'chungnam': '충청남도',
-    'chungbuk': '충청북도',
-    'daejeon': '대전시',
-    'sejong': '세종시',
-    'gyeongbuk': '경상북도',
-    'gyeongnam': '경상남도',
-    'ulsan': '울산시',
-    'daegu': '대구시',
-    'jeonbuk': '전라북도',
-    'jeonnam': '전라남도',
-    'kwangju': '광주시',
-    'busan': '부산시',
-    'jeju': '제주도',
-    'ulleungdo_dokdo': '울릉도/독도'
-}
 
     #홈 이동버튼 만드는 함수
-    def go_home():
+    def home_button():
         if st.button('홈으로 이동'):
             st.query_params.clear()
             st.experimental_rerun()
 
     #슬라이더를 만들어 불러올 데이터의 단위, 기간을 param로 반환해주는 함수
     def make_slider_and_params():
-        #단위 정하기
-        st.subheader("원하는 정보의 형식을 입력해주세요!")
-        unit = st.selectbox(label='단위',options=['년','월','일'])
-        
-        if(unit == '년'):
-            start, end = st.slider(
-                label='기간', 
-                min_value=datetime.strptime('2017','%Y'),
-                max_value=datetime.strptime('2023','%Y'),
-                value=[datetime.strptime('2017','%Y'), datetime.strptime('2023','%Y')], format='Y')
-            
-        elif(unit == '월'):
-            start, end = st.slider(
-                label='기간', 
-                min_value=datetime.strptime('2017-01','%Y-%m'),
-                max_value=datetime.strptime('2023-01','%Y-%m'),
-                value=[datetime.strptime('2017-01','%Y-%m'), datetime.strptime('2023-01','%Y-%m')], format='Y-M')
-            
-        elif(unit == '일'):
-            start, end = st.slider(
-                label='기간', 
-                min_value=datetime.strptime('2017-01-01','%Y-%m-%d'), 
-                max_value=datetime.strptime('2023-01-01','%Y-%m-%d'),
-                value=[datetime.strptime('2017-01-01','%Y-%m-%d'), datetime.strptime('2023-01-01','%Y-%m-%d')])
-            
-        else:
-            st.warning('단위를 정해주세요.')
-        
-        return {'unit': unit, 'start': start, 'end': end}
 
-    def submit(region : str):
+        st.subheader('보고싶은 기간을 선택해주세요!')
+
+        now = datetime.now()
+        end = now + pd.Timedelta(days=3)
+        
+        now = str(now)
+        end = str(end)
+
+        start, end = st.slider(
+            label='기간', 
+            min_value=datetime.strptime(now[:10],'%Y-%m-%d'), 
+            max_value=datetime.strptime(end[:10],'%Y-%m-%d'),
+            value=[datetime.strptime(now[:10],'%Y-%m-%d'), datetime.strptime(end[:10],'%Y-%m-%d')])
+        
+        return {'start': start, 'end': end}
+
+    def submit(local : str):
         if st.button('요청'):
-            response = requests.get(my_url + '/' + region,params=param)
+            response = requests.get(my_url + '/predict_region/' + regions_codes[local], params=param)
             st.write(response.json())
 
     #지역별 그래프불러오기
     #처음에 쿼리문에 region이 없으므로 예외처리
     if 'region' not in st.query_params:
-        st.warning("지역을 선택해주세요")
+        st.header("지역을 선택해주세요")
 
+    elif st.query_params['region'] == 'ulleungdo_dokdo':
+        st.header('울릉도/독도 지역의 대한 데이터는 준비중입니다.')
+        home_button()
     
     else:
-        st.header(f"{regions_dict[st.query_params['region']]}")
+        #해당지역(한글)
+        local = regions_dict[st.query_params['region']]
+
+        st.header(f"{local}")
         param = make_slider_and_params()
-        submit(st.query_params['region'])
-        go_home()
+        submit(local)
+        home_button()
 
     
